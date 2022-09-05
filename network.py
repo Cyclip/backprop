@@ -35,6 +35,14 @@ class Network:
             self.neurons[i + 1] = self.activation_function(np.dot(self.neurons[i], self.weights[i]) + self.biases[i])
         
         return self.neurons[-1]
+    
+    def cost(self, inputs, targets):
+        """
+        Calculates the cost of the network based on a single input.
+        """
+        outputs = np.array(self.feed_forward(inputs))
+        return (1 / len(inputs)) * np.sum((targets - outputs) ** 2)
+
 
 
 a = Network((2, 3, 1))
