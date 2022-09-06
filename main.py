@@ -23,7 +23,7 @@ targets = np.array((
 ))
 
 costs = xor.train(inputs, targets, LEARNING_RATE, EPOCHS)
-xor.save("xor.npz")
+xor.save("models/xor.npz")
 
 print(f"Cost: {xor.cost(inputs, targets)}")
 
