@@ -6,6 +6,12 @@ def sigmoid(x):
 def sigmoid_derivative(x):
     return sigmoid(x) * (1 - sigmoid(x))
 
+def relu(x):
+    return np.maximum(0, x)
+
+def relu_derivative(x):
+    return 1. * (x > 0)
+
 class Network:
     def __init__(self, shape, activation='sigmoid'):
         """Initialises the network.
@@ -33,6 +39,9 @@ class Network:
         if activation == 'sigmoid':
             self.activation_function = sigmoid
             self.activation_derivative = sigmoid_derivative
+        elif activation == 'relu':
+            self.activation_function = relu
+            self.activation_derivative = relu_derivative
         else:
             raise ValueError(f'Activation function {activation} not supported.')
 
@@ -62,7 +71,8 @@ class Network:
         costs = []
 
         for epoch in range(epochs):
-            print(f"[EPOCH {epoch + 1}/{epochs}] Starting epoch")
+            # if epoch % 100 == 0:
+            #     print(f"[EPOCH {epoch + 1}/{epochs}] Starting epoch")
             for inp, target in zip(inputs, targets):
                 self.backpropagate(inp, target, learningRate)
             
@@ -94,3 +104,27 @@ class Network:
             self.weights[i] += learningRate * np.dot(self.neurons[i][:, None], delta[None, :])
             self.biases[i] += learningRate * delta
             error = np.dot(delta, self.weights[i].T)
+    
+    def save(self, path):
+        """
+        Saves the network to a file.
+        """
+        np.savez(path, shape=self.shape, weights=self.weights, biases=self.biases)
+    
+    @staticmethod
+    def load(path):
+        """
+        Loads a network from a file.
+        """
+        data = np.load(path)
+        net = Network(data['shape'])
+        net.weights = data['weights']
+        net.biases = data['biases']
+        return net
+    
+    def predict(self, inputs):
+        """
+        Predicts the output of a set of inputs.
+        """
+        outputs = self.feed_forward(inputs)
+        return outputs.argmax()
