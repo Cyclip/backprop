@@ -1,6 +1,8 @@
 import numpy as np
+from datetime import datetime
 
 def sigmoid(x):
+    x = x.astype(float)
     return 1 / (1 + np.exp(-x))
 
 def sigmoid_derivative(x):
@@ -62,6 +64,18 @@ class Network:
         """
         outputs = np.array(self.feed_forward(inputs))
         return (1 / len(inputs)) * np.sum((targets - outputs) ** 2)
+    
+    def accuracy(self, inputs, targets):
+        outputs = np.array(self.feed_forward(inputs))
+        success = 0
+        total = len(targets)
+
+        for output, target in zip(outputs, targets):
+            if output.argmax() == target.argmax():
+                success += 1
+        
+        return success/total
+
 
     def train(self, inputs, targets, learningRate=0.1, epochs=100):
         """
@@ -71,8 +85,10 @@ class Network:
         costs = []
 
         for epoch in range(epochs):
-            # if epoch % 100 == 0:
-            #     print(f"[EPOCH {epoch + 1}/{epochs}] Starting epoch")
+            if epoch % int(epochs / 100) == 0 or epoch == epochs - 1:
+                print(datetime.now().strftime("[%H:%M:%S.%f")[:-3] + "]" + f" Starting epoch {epoch + 1}/{epochs}")
+            
+
             for inp, target in zip(inputs, targets):
                 self.backpropagate(inp, target, learningRate)
             
@@ -116,7 +132,7 @@ class Network:
         """
         Loads a network from a file.
         """
-        data = np.load(path)
+        data = np.load(path, allow_pickle=True)
         net = Network(data['shape'])
         net.weights = data['weights']
         net.biases = data['biases']
